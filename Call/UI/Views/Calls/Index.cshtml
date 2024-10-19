@@ -1,0 +1,147 @@
+﻿@using Newtonsoft.Json
+@model UI.Controllers.CallsViewModel
+@{
+    ViewData["Title"] = "מרכזיית VOIP - ניהול שיחות";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var answerSelected = Model.FilterStatus == "answer" ? "selected" : "";
+    var cancelSelected = Model.FilterStatus == "cancel" ? "selected" : "";
+}
+
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+}
+
+<div class="container-fluid">
+    <h2>ניהול שיחות</h2>
+    <table class="table table-striped display" id="callsTable">
+        <thead>
+            <tr>
+                <th>זמן</th>
+                <th>מספר מתקשר</th>
+                <th>יעד</th>
+                <th>משך השיחה</th>
+                <th>סטטוס</th>
+                <th>הקלטה</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var call in Model.CallHistory)
+            {
+                var recordingUrl = Url.Action("GetCallRecording", "Recordings", new { recordGroup = call.outgroup_name, uniqueId = call.uniqueid, recordId = call.recording });
+                <tr class="call-row" data-call='@Html.Raw(JsonConvert.SerializeObject(call))' data-recording-url="@recordingUrl">
+                    <td>@call.start</td>
+                    <td>@call.callerid_external</td>
+                    <td>@call.dnumber</td>
+                    <td>
+                        @{
+                            int totaltimeInSeconds;
+                            if (int.TryParse(call.totaltime, out totaltimeInSeconds))
+                            {
+                                int minutes = totaltimeInSeconds / 60;
+                                int seconds = totaltimeInSeconds % 60;
+                                @($"{minutes}:{seconds:D2}")
+                            }
+                            else
+                            {
+                                @call.totaltime
+                            }
+                        }
+                    </td>
+                    <td>@call.status</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(call.recording))
+                        {
+                            <button type="button" class="btn btn-sm btn-secondary play-recording" data-url="@recordingUrl">האזן</button>
+                        }
+                        else
+                        {
+                            <span>אין הקלטה</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <form asp-action="ExportToExcel" method="post">
+        <button type="submit" class="btn btn-success">ייצא לאקסל</button>
+    </form>
+</div>
+
+<!-- Call Details Modal -->
+<div class="modal fade" id="callDetailsModal" tabindex="-1" role="dialog" aria-labelledby="callDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="callDetailsModalLabel">פרטי שיחה</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="direction: rtl; text-align: right;">
+                <p><strong>זמן:</strong> <span id="callTime"></span></p>
+                <p><strong>מספר מתקשר:</strong> <span id="callCallerId"></span></p>
+                <p><strong>יעד:</strong> <span id="callDnumber"></span></p>
+                <p><strong>משך:</strong> <span id="callDuration"></span></p>
+                <p><strong>סטטוס:</strong> <span id="callStatus"></span></p>
+                <div id="recordingSection" style="display: none; text-align: center;">
+                    <audio id="recordingAudio" controls style="width: 100%;">
+                        <source id="recordingSource" src="" type="audio/mpeg">
+                        הדפדפן שלך אינו תומך בנגן אודיו.
+                    </audio>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">סגור</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#callsTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/Hebrew.json"
+                }
+            });
+
+            // אירוע לחיצה על השורה כולה
+            $('#callsTable tbody').on('click', 'tr', function () {
+                var call = $(this).data('call');
+                var recordingUrl = $(this).data('recording-url');
+
+                $('#callTime').text(call.start);
+                $('#callCallerId').text(call.callerid_external);
+                $('#callDnumber').text(call.dnumber);
+
+                var totaltimeInSeconds = parseInt(call.totaltime);
+                var minutes = Math.floor(totaltimeInSeconds / 60);
+                var seconds = totaltimeInSeconds % 60;
+                $('#callDuration').text(minutes + ':' + (seconds < 10 ? '0' : '') + seconds + ' דקות');
+
+                $('#callStatus').text(call.status);
+
+                if (recordingUrl) {
+                    $('#recordingSource').attr('src', recordingUrl);
+                    $('#recordingAudio')[0].load();
+                    $('#recordingSection').show();
+                } else {
+                    $('#recordingSection').hide();
+                }
+
+                $('#callDetailsModal').modal('show');
+            });
+
+            // עצירה של נגן האודיו וסגירת המודאל
+            $('.close, .btn-secondary').on('click', function () {
+                $('#callDetailsModal').modal('hide');
+                $('#recordingAudio')[0].pause();
+                $('#recordingSection').hide();
+            });
+        });
+    </script>
+}

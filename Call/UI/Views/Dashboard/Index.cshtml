@@ -1,0 +1,169 @@
+﻿@using Newtonsoft.Json
+@model UI.Controllers.DashboardViewModel
+@{
+    ViewData["Title"] = "מרכזיית VOIP - דשבורד מרכזי";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+}
+
+<div class="container-fluid dashboard-container">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">קווים פעילים</h5>
+                    @* <p class="card-text">@Model.ActiveCalls.Count()</p> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">קווים לא פעילים</h5>
+                   @*  <p class="card-text">@Model.InactiveCalls.Count()</p> <!-- הוספתי לוגיקה להצגת הקווים הלא פעילים --> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">שלוחות פעילות</h5>
+                    @* <p class="card-text">@Model.ActiveExtensions.Count()</p> <!-- הוספתי לוגיקה להצגת השלוחות הפעילות --> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-secondary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">שלוחות לא פעילות</h5>
+                    @* <p class="card-text">@Model.InactiveExtensions.Count()</p> <!-- הוספתי לוגיקה להצגת השלוחות הלא פעילות --> *@
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">סטטיסטיקות שיחות</h5>
+                    <canvas id="callStatisticsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">שיחות אחרונות</h5>
+                    <table class="table table-striped display" id="recentCallsTable">
+                        <thead>
+                            <tr>
+                                <th>זמן</th>
+                                <th>מספר מתקשר</th>
+                                <th>יעד</th>
+                                <th>משך</th>
+                                <th>סטטוס</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var call in Model.CallHistory)
+                            {
+                                <tr>
+                                    <td>@call.start</td>
+                                    <td>@call.callerid_external</td>
+                                    <td>@call.dnumber</td>
+                                    <td>@call.totaltime</td>
+                                    <td>@call.status</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#recentCallsTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/Hebrew.json"
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var ctx = document.getElementById('callStatisticsChart').getContext('2d');
+
+            // Extract labels and data for the chart
+            var labels = @Html.Raw(JsonConvert.SerializeObject(Model.CallHistory.Select(x => x.start.ToString("dd/MM/yyyy HH:mm"))));
+            var durations = @Html.Raw(JsonConvert.SerializeObject(Model.CallHistory.Select(x => x.totaltime)));
+
+            console.log('Labels:', labels); // Debugging: Check if labels are correct
+            console.log('Durations:', durations); // Debugging: Check if durations are correct
+
+            var callStatisticsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'משך שיחות',
+                        data: durations, // Use the durations data
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(75, 192, 192, 1)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'זמן'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'משך (שניות)'
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 10
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: 'rgba(75, 192, 192, 1)'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (tooltipItem) {
+                                    return 'משך: ' + tooltipItem.raw + ' שניות';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,55 @@
+﻿@using Newtonsoft.Json
+@model List<Service.Central_Phone.Models.RetrievingRecording>
+
+@{
+    ViewData["Title"] = "ניהול הקלטות";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>ניהול הקלטות</h1>
+
+<div>
+    <form method="get" asp-action="Index">
+        <div>
+            <label>תאריך התחלה</label>
+            <input type="date" name="startDate" />
+        </div>
+        <div>
+            <label>תאריך סיום</label>
+            <input type="date" name="endDate" />
+        </div>
+        <button type="submit">סנן</button>
+    </form>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>תאריך</th>
+            <th>שולח</th>
+            <th>משך</th>
+            <th>נגן</th>
+            <th>פעולות</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var recording in Model)
+        {
+            var recordingUrl = Url.Action("GetCallRecording", "Recordings", new { recordGroup = recording.recordgroup, uniqueId = recording.uniqueid, recordId = recording.recordid });
+            <tr>
+                <td>@recording.start</td>
+                <td>@recording.snumber</td>
+                <td>@recording.totaltime</td>
+                <td>
+                    <audio controls>
+                        <source src="@recordingUrl" type="audio/mpeg">
+                        הדפדפן שלך אינו תומך בנגן אודיו.
+                    </audio>
+                </td>
+                <td>
+                    <a href="@recordingUrl" class="btn btn-primary">הורד</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

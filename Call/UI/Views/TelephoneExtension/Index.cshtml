@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Service.Central_Phone.Models.TelephoneExtension>
+
+@{
+    ViewData["Title"] = "רשימת שלוחות וקווים";
+}
+
+<h2>רשימת שלוחות וקווים</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>שם</th>
+            <th>תיאור</th>
+            <th>פעולות</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var line in Model)
+        {
+            <tr>
+                <td>@line.name</td>
+                <td>@line.description</td>
+                <td>
+                    <!-- כאן ניתן להוסיף פעולות כמו עריכה ומחיקה -->
+                    <a asp-action="Edit" asp-route-id="@line.name" class="btn btn-primary">עריכה</a>
+                    <a asp-action="Delete" asp-route-id="@line.name" class="btn btn-danger">מחיקה</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

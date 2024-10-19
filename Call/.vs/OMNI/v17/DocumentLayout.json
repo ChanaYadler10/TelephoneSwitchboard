@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\user1\\Desktop\\\u05D0\u05E7\u05EA\u05D5\u05DF\\Call_Center\\Call\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{FB567ECF-8670-4CD9-B457-638C8CD79C0C}|UI\\UI.csproj|c:\\users\\user1\\desktop\\\u05D0\u05E7\u05EA\u05D5\u05DF\\call_center\\call\\ui\\controllers\\queuecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FB567ECF-8670-4CD9-B457-638C8CD79C0C}|UI\\UI.csproj|solutionrelative:ui\\controllers\\queuecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "QueueController.cs",
+              "DocumentMoniker": "C:\\Users\\user1\\Desktop\\\u05D0\u05E7\u05EA\u05D5\u05DF\\Call_Center\\Call\\UI\\Controllers\\QueueController.cs",
+              "RelativeDocumentMoniker": "UI\\Controllers\\QueueController.cs",
+              "ToolTip": "C:\\Users\\user1\\Desktop\\\u05D0\u05E7\u05EA\u05D5\u05DF\\Call_Center\\Call\\UI\\Controllers\\QueueController.cs",
+              "RelativeToolTip": "UI\\Controllers\\QueueController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAgAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-07T18:59:14.191Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

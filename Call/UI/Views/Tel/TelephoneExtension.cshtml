@@ -1,0 +1,169 @@
+﻿@model IEnumerable<Service.Central_Phone.Models.TelephoneExtension>
+
+@{
+    ViewData["Title"] = "ניהול שלוחות וקווים";
+}
+
+<h2>ניהול שלוחות וקווים</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>שם</th>
+            <th>תיאור</th>
+            <th>פעולות</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.name</td>
+                <td>@item.description</td>
+                <td>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" data-name="@item.name" data-description="@item.description">ערוך</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteLine('@item.name')">מחק</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal">הוסף שלוחה/קו חדש</button>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">הוספת שלוחה/קו חדש</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addForm">
+                    <div class="mb-3">
+                        <label for="addName" class="form-label">שם</label>
+                        <input type="text" class="form-control" id="addName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addDescription" class="form-label">תיאור</label>
+                        <input type="text" class="form-control" id="addDescription" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">הוסף</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">עריכת שלוחה/קו</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="mb-3">
+                        <label for="editName" class="form-label">שם</label>
+                        <input type="text" class="form-control" id="editName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">תיאור</label>
+                        <input type="text" class="form-control" id="editDescription" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">שמור</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var editModal = document.getElementById('editModal');
+            editModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var name = button.getAttribute('data-name');
+                var description = button.getAttribute('data-description');
+
+                var modalTitle = editModal.querySelector('.modal-title');
+                var editName = editModal.querySelector('#editName');
+                var editDescription = editModal.querySelector('#editDescription');
+
+                modalTitle.textContent = 'עריכת שלוחה/קו - ' + name;
+                editName.value = name;
+                editDescription.value = description;
+            });
+
+            document.getElementById('addForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                var name = document.getElementById('addName').value;
+                var description = document.getElementById('addDescription').value;
+
+                fetch('/api/TelephoneExtension/line/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: name, description: description, authUsername: 'username', authPassword: 'password' })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            alert('Failed to add telephone line');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            });
+
+            document.getElementById('editForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                var name = document.getElementById('editName').value;
+                var description = document.getElementById('editDescription').value;
+
+                fetch('/api/TelephoneExtension/line/edit', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: name, description: description, authUsername: 'username', authPassword: 'password' })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            alert('Failed to update telephone line');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            });
+        });
+
+        function deleteLine(name) {
+            if (confirm('Are you sure you want to delete this telephone line?')) {
+                fetch('/api/TelephoneExtension/line?authUsername=username&authPassword=password&name=' + name, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            alert('Failed to delete telephone line');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        }
+    </script>
+}

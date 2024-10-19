@@ -1,0 +1,29 @@
+﻿@model IEnumerable<UI.Models.AlertViewModel>
+
+@{
+    ViewData["Title"] = "מערכת התרעות";
+}
+
+<h2>מערכת התרעות</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>סוג התרעה</th>
+            <th>הודעה</th>
+            <th>זמן</th>
+            <th>סטטוס</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var alert in Model)
+        {
+            <tr>
+                <td>@alert.AlertType</td>
+                <td>@alert.Message</td>
+                <td>@alert.Timestamp</td>
+                <td>@(alert.Resolved ? "טופל" : "לא טופל")</td>
+            </tr>
+        }
+    </tbody>
+</table>

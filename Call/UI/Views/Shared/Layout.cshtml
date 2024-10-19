@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - מרכזיית VOIP</title>
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+
+        .dashboard-container {
+            margin: 20px;
+        }
+
+        .card-title {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid dashboard-container">
+        @RenderBody()
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/popper.js/dist/umd/popper.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/chart.js/dist/Chart.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+
+</html>
+
